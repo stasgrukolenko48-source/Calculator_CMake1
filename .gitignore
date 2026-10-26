@@ -1,0 +1,21 @@
+# CMake и папки сборки
+build/
+out/
+.cmake/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Бинарники
+*.exe
+*.dll
+*.lib
+*.pdb
+
+# Файлы IDE
+.vs/
+.vscode/
+*.sln
+*.vcxproj
+*.vcxproj.*
