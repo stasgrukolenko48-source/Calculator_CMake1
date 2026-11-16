@@ -33,9 +33,7 @@ public:
 class PluginManager {
 private:
     std::vector<DynamicLibrary> loadedLibs_;
-    
     static std::filesystem::path resolvePluginDirectory();
-    // Этот метод решает проблему высокой цикломатической сложности!
     bool loadSinglePlugin(const std::filesystem::path& path, Calculator& calculator);
 
 public:
