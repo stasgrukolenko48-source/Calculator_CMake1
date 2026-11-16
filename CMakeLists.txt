@@ -6,11 +6,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 1. Указываем глобальную директорию с заголовочными файлами
-# Это ОБЯЗАТЕЛЬНО должно быть до add_executable и add_library
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# 2. Собираем основное приложение
-add_executable(calc src/main.cpp) # Добавьте другие .cpp файлы, если они есть
+# 2. Собираем основное приложение (оставляем привычное имя calc, но подключаем новые файлы)
+add_executable(calc 
+    src/main.cpp 
+    src/calculator.cpp 
+    src/plugin_manager.cpp
+)
 
 # 3. Настройка вывода для плагинов
 set(PLUGIN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/plugins")
