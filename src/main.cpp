@@ -4,7 +4,6 @@
 #include <windows.h>
 
 int main() {
-    
     try {
         SetConsoleCP(1251);
         SetConsoleOutputCP(1251);
@@ -15,38 +14,41 @@ int main() {
 
         pluginManager.loadAll(calculator);
 
-        std::cout << "\nReady. Enter expression or 'exit'.\n";
+        std::cout << "\nКалькулятор готов к работе. Введите выражение (или 'exit' для выхода).\n> ";
 
         std::string line;
-        while (true) {
-            std::cout << "> ";
-            if (!std::getline(std::cin, line)) break;
-            
-           
+        while (std::getline(std::cin, line)) {
             for (char& c : line) {
                 if (static_cast<unsigned char>(c) == 0x96) c = '-';
             }
 
-            if (line.find_first_not_of(" \t\r\n") == std::string::npos) continue;
-            if (line.find("exit") != std::string::npos || line.find("quit") != std::string::npos) break;
+            std::size_t first = line.find_first_not_of(" \t\r\n");
+            if (first == std::string::npos) {
+                std::cout << "> ";
+                continue;
+            }
+            
+            std::size_t last = line.find_last_not_of(" \t\r\n");
+            std::string trimmed = line.substr(first, last - first + 1);
+
+            if (trimmed == "exit" || trimmed == "quit") break;
 
             try {
-                std::cout << "= " << calculator.calculate(line) << "\n";
+                std::cout << "Вывод: " << calculator.calculate(trimmed) << "\n";
             } catch (const std::exception& e) {
-                std::cout << "Error: " << e.what() << "\n";
+                std::cout << "Ошибка: " << e.what() << "\n";
             }
+            std::cout << "> ";
         }
         
         calculator.clearFunctions();
-    } 
-    catch (const std::exception& e) {
-        std::cerr << "Fatal error: " << e.what() << '\n';
+        std::cout << "Работа калькулятора завершена.\n";
+    } catch (const std::exception& e) {
+        std::cerr << "Критическая ошибка: " << e.what() << '\n';
+        return 1;
+    } catch (...) {
+        std::cerr << "Неизвестная критическая ошибка.\n";
         return 1;
     }
-    catch (...) {
-        std::cerr << "Unknown fatal error.\n";
-        return 1;
-    }
-
     return 0;
 }
