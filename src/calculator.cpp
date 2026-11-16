@@ -33,7 +33,7 @@ private:
             if (!std::isalnum(ch) && ch != '_') break;
             ++pos_;
         }
-        if (start == pos_) throw std::runtime_error("Expected function name");
+        if (start == pos_) throw std::runtime_error("Ожидалось имя функции");
         return std::string(input_.substr(start, pos_ - start));
     }
 
@@ -53,7 +53,7 @@ private:
             if (match('*')) result *= parseUnary();
             else if (match('/')) {
                 double divisor = parseUnary();
-                if (divisor == 0.0) throw std::domain_error("Division by zero");
+                if (divisor == 0.0) throw std::domain_error("Деление на ноль");
                 result /= divisor;
             }
             else break;
@@ -70,15 +70,11 @@ private:
     double parsePower() {
         double base = parsePrimary();
         if (match('^')) {
-            double exponent = parseUnary();
-            if (base < 0.0 && std::floor(exponent) != exponent) {
-                throw std::domain_error("Fractional power of negative number");
-            }
-            if (base == 0.0 && exponent <= 0.0) {
-                throw std::domain_error("Zero to non-positive power");
-            }
+            double exponent = parsePower(); 
+            if (base < 0.0 && std::floor(exponent) != exponent) throw std::domain_error("Возведение отрицательного числа в дробную степень");
+            if (base == 0.0 && exponent <= 0.0) throw std::domain_error("Ноль в неположительной степени");
             double res = std::pow(base, exponent);
-            if (!std::isfinite(res)) throw std::overflow_error("Power overflow");
+            if (!std::isfinite(res)) throw std::overflow_error("Переполнение");
             return res;
         }
         return base;
@@ -86,9 +82,9 @@ private:
 
     double parsePrimary() {
         if (match('(')) {
-            if (match(')')) throw std::invalid_argument("Empty brackets");
+            if (match(')')) throw std::invalid_argument("Пустые скобки");
             double result = parseExpression();
-            if (!match(')')) throw std::invalid_argument("Missing closing bracket");
+            if (!match(')')) throw std::invalid_argument("Пропущена скобка");
             return result;
         }
 
@@ -97,13 +93,13 @@ private:
             unsigned char ch = static_cast<unsigned char>(input_[pos_]);
             if (std::isalpha(ch) || ch == '_') {
                 std::string funcName = parseIdentifier();
-                if (!match('(')) throw std::invalid_argument("Expected '(' after function");
-                if (match(')')) throw std::invalid_argument("Function without arguments");
+                if (!match('(')) throw std::invalid_argument("Ожидалась '('");
+                if (match(')')) throw std::invalid_argument("Функция вызвана без аргумента");
                 double arg = parseExpression();
-                if (!match(')')) throw std::invalid_argument("Missing ')' after argument");
+                if (!match(')')) throw std::invalid_argument("Пропущена ')'");
 
                 auto it = funcs_.find(funcName);
-                if (it == funcs_.end()) throw std::invalid_argument("Unknown function: " + funcName);
+                if (it == funcs_.end()) throw std::invalid_argument("Неизвестная функция");
                 return it->second(arg);
             }
         }
@@ -112,13 +108,13 @@ private:
 
     double parseNumber() {
         skipSpaces();
-        if (pos_ >= input_.size()) throw std::invalid_argument("Expected number");
+        if (pos_ >= input_.size()) throw std::invalid_argument("Ожидалось число");
         const char* start = input_.data() + pos_;
         char* end = nullptr;
         double value = std::strtod(start, &end);
-        if (start == end) throw std::invalid_argument("Unexpected character");
+        if (start == end) throw std::invalid_argument("Неожиданный символ");
         pos_ += static_cast<std::size_t>(end - start);
-        if (!std::isfinite(value)) throw std::out_of_range("Number out of range");
+        if (!std::isfinite(value)) throw std::out_of_range("Число вне пределов");
         return value;
     }
 
@@ -129,8 +125,8 @@ public:
     double parse() {
         double result = parseExpression();
         skipSpaces();
-        if (pos_ != input_.size()) throw std::invalid_argument("Unexpected trailing characters");
-        if (!std::isfinite(result)) throw std::overflow_error("Result out of range");
+        if (pos_ != input_.size()) throw std::invalid_argument("Лишний символ");
+        if (!std::isfinite(result)) throw std::overflow_error("Результат вне пределов");
         return result;
     }
 };
