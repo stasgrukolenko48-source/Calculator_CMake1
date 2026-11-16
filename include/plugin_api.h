@@ -18,7 +18,6 @@ using GetPluginFunc = const Plugin* (*)();
 #define PLUGIN_EXPORT extern "C"
 #endif
 
-
 #define IMPLEMENT_PLUGIN(PluginNameStr, FuncLogic) \
     static int PluginFunc(double x, double* result) { \
         if (!result) return -1; \
