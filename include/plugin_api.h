@@ -17,3 +17,17 @@ using GetPluginFunc = const Plugin* (*)();
 #else
 #define PLUGIN_EXPORT extern "C"
 #endif
+
+
+#define IMPLEMENT_PLUGIN(PluginNameStr, FuncLogic) \
+    static int PluginFunc(double x, double* result) { \
+        if (!result) return -1; \
+        try { \
+            FuncLogic; \
+            return 0; \
+        } catch (...) { \
+            return -1; \
+        } \
+    } \
+    static const Plugin kPluginInstance = { 1, PluginNameStr, &PluginFunc }; \
+    PLUGIN_EXPORT const Plugin* GetPlugin() { return &kPluginInstance; }
